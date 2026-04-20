@@ -119,6 +119,18 @@ export default function App() {
     return () => clearInterval(interval);
   }, [serverId]);
 
+  useEffect(() => {
+    if (discordData?.icon_url) {
+      let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.getElementsByTagName('head')[0].appendChild(link);
+      }
+      link.href = discordData.icon_url;
+    }
+  }, [discordData?.icon_url]);
+
   const activeVCs = discordData?.channels?.filter(c => c.name.toLowerCase().includes('vc') || (c.members && c.members.length > 0)).length || 14;
   const onlineCount = discordData?.approximate_presence_count || discordData?.presence_count || 482;
   const totalMembers = discordData?.approximate_member_count || 6624;
@@ -457,8 +469,8 @@ export default function App() {
             onClick={() => {
               if (navigator.share) {
                 navigator.share({
-                  title: 'Vaazha Hub',
-                  text: 'Join the ultimate community for Kerala makkals!',
+                  title: 'Vaazha official discord community !',
+                  text: 'Join the #1 Kerala community on Discord!',
                   url: window.location.href,
                 }).catch(console.error);
               } else {
