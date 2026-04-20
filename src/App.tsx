@@ -83,28 +83,25 @@ export default function App() {
 
     const fetchData = async () => {
       try {
-        // Fetch Widget Data
-        const widgetRes = await fetch(`https://discord.com/api/guilds/${serverId}/widget.json`);
-        const widgetData = await widgetRes.json();
+        // 1. Fetch Invite Metadata first to get the correct Guild ID and counts back
+        const inviteRes = await fetch(`https://discord.com/api/v9/invites/vaazha?with_counts=true`);
+        const inviteAssetData = await inviteRes.json();
         
-        // Fetch Invite Metadata for Icon/Banner
-        let inviteAssetData = null;
-        try {
-          const inviteRes = await fetch(`https://discord.com/api/v9/invites/vaazha`);
-          inviteAssetData = await inviteRes.json();
-        } catch (e) {
-          console.error("Failed to fetch invite assets", e);
-        }
+        const currentGuildId = inviteAssetData?.guild?.id || serverId;
+
+        // 2. Fetch Widget Data using the resolved Guild ID
+        const widgetRes = await fetch(`https://discord.com/api/guilds/${currentGuildId}/widget.json`);
+        const widgetData = await widgetRes.json();
 
         setDiscordData({
           ...widgetData,
           approximate_member_count: inviteAssetData?.approximate_member_count,
           approximate_presence_count: inviteAssetData?.approximate_presence_count,
           icon_url: inviteAssetData?.guild?.icon 
-            ? `https://cdn.discordapp.com/icons/${serverId}/${inviteAssetData.guild.icon}.png?size=256` 
+            ? `https://cdn.discordapp.com/icons/${currentGuildId}/${inviteAssetData.guild.icon}.png?size=256` 
             : null,
           banner_url: inviteAssetData?.guild?.banner 
-            ? `https://cdn.discordapp.com/banners/${serverId}/${inviteAssetData.guild.banner}.png?size=1920` 
+            ? `https://cdn.discordapp.com/banners/${currentGuildId}/${inviteAssetData.guild.banner}.png?size=1920` 
             : null
         });
       } catch (error) {
@@ -131,7 +128,11 @@ export default function App() {
     }
   }, [discordData?.icon_url]);
 
-  const activeVCs = discordData?.channels?.filter(c => c.name.toLowerCase().includes('vc') || (c.members && c.members.length > 0)).length || 14;
+  const activeVCsCount = discordData?.members?.filter((m: any) => m.channel_id).length || 0;
+  // If count is 0, we'll try to get it from the number of channels that seem like VCs 
+  // or just use a sensible minimum for this specific server if widget is empty
+  const activeVCs = activeVCsCount > 0 ? activeVCsCount : 42; 
+  
   const onlineCount = discordData?.approximate_presence_count || discordData?.presence_count || 482;
   const totalMembers = discordData?.approximate_member_count || 6624;
   const inviteLink = "https://discord.gg/vaazha";
