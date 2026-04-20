@@ -32,10 +32,16 @@
 .glass-card {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   will-change: transform, opacity;
   backface-visibility: hidden;
   transform: translateZ(0);
+}
+
+.performance-layer {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 100px;
 }
 
 .banana-leaf {

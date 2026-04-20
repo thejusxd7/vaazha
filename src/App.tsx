@@ -1,5 +1,5 @@
-import { motion } from 'motion/react';
-import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import React, { useState, useEffect, useMemo, memo } from 'react';
 import { 
   Trees, 
   MessageCircle, 
@@ -23,7 +23,7 @@ interface DiscordStats {
   banner_url?: string | null;
 }
 
-const FeatureCard = ({ icon: Icon, title, description, delay }: { icon: any, title: string, description: string, delay: number }) => (
+const FeatureCard = memo(({ icon: Icon, title, description, delay }: { icon: any, title: string, description: string, delay: number }) => (
   <motion.div 
     initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -34,7 +34,7 @@ const FeatureCard = ({ icon: Icon, title, description, delay }: { icon: any, tit
       ease: [0.21, 0.47, 0.32, 0.98] 
     }}
     whileHover={{ y: -8, transition: { duration: 0.3 } }}
-    className="p-8 glass-card y2k-shadow transition-shadow hover:shadow-[10px_10px_0px_0px_#000] border-white/10 group cursor-default"
+    className="p-8 glass-card y2k-shadow transition-shadow hover:shadow-[10px_10px_0px_0px_#000] border-white/10 group cursor-default transform-gpu"
   >
     <motion.div 
       whileHover={{ rotate: 10, scale: 1.1 }}
@@ -45,7 +45,29 @@ const FeatureCard = ({ icon: Icon, title, description, delay }: { icon: any, tit
     <h3 className="text-2xl font-display font-bold mb-3 uppercase tracking-tight group-hover:text-mallu-amber transition-colors">{title}</h3>
     <p className="text-green-100/60 leading-relaxed font-sans font-light group-hover:text-green-100 transition-colors">{description}</p>
   </motion.div>
-);
+));
+
+FeatureCard.displayName = 'FeatureCard';
+
+const SocialLink = memo(({ href, icon: Icon, color, children, isButton, onClick }: { href?: string, icon?: any, color: string, children?: React.ReactNode, isButton?: boolean, onClick?: () => void }) => {
+  const Component = isButton ? motion.button : motion.a;
+  return (
+    <Component
+      variants={itemVariants}
+      href={href}
+      onClick={onClick}
+      target={!isButton ? "_blank" : undefined}
+      rel={!isButton ? "noopener noreferrer" : undefined}
+      whileHover={{ scale: 1.1, y: -5 }}
+      className="w-13 h-13 rounded-full glass-card flex items-center justify-center border border-white/10 shadow-lg relative group overflow-hidden transform-gpu"
+    >
+      <div className={`absolute inset-0 bg-gradient-to-tr ${color} opacity-0 group-hover:opacity-100 transition-opacity`} />
+      {Icon ? <Icon size={22} className={`text-white group-hover:text-amber-400 transition-colors`} /> : children}
+    </Component>
+  );
+});
+
+SocialLink.displayName = 'SocialLink';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -128,21 +150,30 @@ export default function App() {
     }
   }, [discordData?.icon_url]);
 
-  const vcMembers = discordData?.members?.filter((m: any) => m.channel_id).length || 0;
-  const activeVCsCount = new Set(discordData?.members?.map((m: any) => m.channel_id).filter(Boolean)).size || 0;
+  const { vcMembers, activeVCsCount, onlineCount, totalMembers } = useMemo(() => {
+    const vcM = discordData?.members?.filter((m: any) => m.channel_id).length || 0;
+    const vcC = new Set(discordData?.members?.map((m: any) => m.channel_id).filter(Boolean)).size || 0;
+    const online = discordData?.approximate_presence_count || discordData?.presence_count || 482;
+    const total = discordData?.approximate_member_count || 6624;
+    return { vcMembers: vcM, activeVCsCount: vcC, onlineCount: online, totalMembers: total };
+  }, [discordData]);
   
   // Display variables with fallbacks
-  const displayActiveVCs = activeVCsCount > 0 ? activeVCsCount : (vcMembers > 0 ? Math.max(1, Math.floor(vcMembers / 3)) : 14);
-  const displayVCMembers = vcMembers > 0 ? vcMembers : 42;
-  
-  const onlineCount = discordData?.approximate_presence_count || discordData?.presence_count || 482;
-  const totalMembers = discordData?.approximate_member_count || 6624;
+  const displayActiveVCs = useMemo(() => activeVCsCount > 0 ? activeVCsCount : (vcMembers > 0 ? Math.max(1, Math.floor(vcMembers / 3)) : 14), [activeVCsCount, vcMembers]);
+  const displayVCMembers = useMemo(() => vcMembers > 0 ? vcMembers : 42, [vcMembers]);
+
+  const memberAvatars = useMemo(() => (discordData?.members?.slice(0, 3) || []), [discordData?.members]);
+  const memberTextInfo = useMemo(() => ({
+    username: discordData?.members?.[0]?.username,
+    count: discordData?.members?.length
+  }), [discordData?.members]);
+
   const inviteLink = "https://discord.gg/vaazha";
 
   return (
     <div className="min-h-screen relative overflow-hidden font-sans bg-[#0d2c1d] text-white">
       {/* Interactive Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
+      <div className="fixed inset-0 z-0 pointer-events-none contain-strict transform-gpu">
         <img 
           src="https://cdn.discordapp.com/attachments/1494500725139705968/1495565131759882250/1000291081.gif?ex=69e6b511&is=69e56391&hm=34f550681ba6d5661fca6d789b44995801d7cfb107b57c489c1a4bc98799f4be&" 
           alt="" 
@@ -150,7 +181,7 @@ export default function App() {
           referrerPolicy="no-referrer"
           loading="eager"
         />
-        <div className="absolute inset-0 bg-[#0d2c1d]/90" />
+        <div className="absolute inset-0 bg-[#0d2c1d]/90 transform-gpu" />
       </div>
 
       {/* Dynamic Background Elements */}
@@ -345,7 +376,7 @@ export default function App() {
       </section>
 
       {/* Features Grid */}
-      <section className="relative py-32 px-8 max-w-7xl mx-auto">
+      <section className="relative py-32 px-8 max-w-7xl mx-auto performance-layer">
         <div className="text-center mb-24">
           <div className="inline-block px-3 py-1 bg-mallu-amber/10 border border-mallu-amber/30 text-mallu-amber text-[10px] font-bold uppercase tracking-[0.4em] mb-6">
             Why Join Us
@@ -446,40 +477,26 @@ export default function App() {
           viewport={{ once: true, margin: "-20px" }}
           className="mt-12 flex justify-center gap-6 transform-gpu"
         >
-          {/* Instagram Icon */}
-          <motion.a
-            variants={itemVariants}
-            href="https://instagram.com/vaazhaa.in"
-            target="_blank"
-            rel="noopener noreferrer"
-            whileHover={{ scale: 1.1, y: -5 }}
-            className="w-13 h-13 rounded-full glass-card flex items-center justify-center border border-white/10 shadow-lg relative group overflow-hidden"
+          <SocialLink 
+            href="https://instagram.com/vaazhaa.in" 
+            icon={Instagram} 
+            color="from-pink-500/20" 
+          />
+          
+          <SocialLink 
+            href={inviteLink} 
+            color="from-indigo-500/20"
           >
-            <div className="absolute inset-0 bg-gradient-to-tr from-pink-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <Instagram size={22} className="text-white group-hover:text-pink-400 transition-colors" />
-          </motion.a>
-
-          {/* Discord Icon */}
-          <motion.a
-            variants={itemVariants}
-            href={inviteLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            whileHover={{ scale: 1.1, y: -5 }}
-            className="w-13 h-13 rounded-full glass-card flex items-center justify-center border border-white/10 shadow-lg relative group overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <img 
               src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/discord.svg" 
               alt="Discord" 
               className="w-6 h-6 brightness-0 invert"
               referrerPolicy="no-referrer"
             />
-          </motion.a>
+          </SocialLink>
 
-          {/* Share Icon */}
-          <motion.button
-            variants={itemVariants}
+          <SocialLink 
+            isButton
             onClick={() => {
               if (navigator.share) {
                 navigator.share({
@@ -492,12 +509,9 @@ export default function App() {
                 alert('Link copied to clipboard!');
               }
             }}
-            whileHover={{ scale: 1.1, y: -5 }}
-            className="w-13 h-13 rounded-full glass-card flex items-center justify-center border border-white/10 shadow-lg relative group overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-tr from-green-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <Share2 size={22} className="text-white group-hover:text-green-400 transition-colors" />
-          </motion.button>
+            icon={Share2}
+            color="from-green-500/20"
+          />
         </motion.div>
       </section>
 
@@ -506,19 +520,23 @@ export default function App() {
       <footer className="px-8 py-12 border-t border-white/5 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12 bg-[#0a2318]/50 mb-8 glass-card">
         <div className="flex items-center gap-6">
           <div className="flex -space-x-3">
-             {(discordData?.members?.slice(0, 3) || [1,2,3]).map((m, i) => (
-              <div key={i} className="w-10 h-10 rounded-full border-2 border-black overflow-hidden bg-deep-forest">
+             {memberAvatars.length > 0 ? memberAvatars.map((m: any, i: number) => (
+              <div key={m.id || i} className="w-10 h-10 rounded-full border-2 border-black overflow-hidden bg-deep-forest transform-gpu">
                 {m.avatar_url ? (
                    <img src={m.avatar_url} alt="Member" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 ) : (
                   <div className={`w-full h-full bg-gradient-to-tr ${i === 1 ? 'from-blue-500' : i === 2 ? 'from-green-500' : 'from-yellow-500'} to-white/20`} />
                 )}
               </div>
+            )) : [1,2,3].map((_, i) => (
+              <div key={i} className="w-10 h-10 rounded-full border-2 border-black overflow-hidden bg-deep-forest transform-gpu">
+                <div className={`w-full h-full bg-gradient-to-tr ${i === 1 ? 'from-blue-500' : i === 2 ? 'from-green-500' : 'from-yellow-500'} to-white/20`} />
+              </div>
             ))}
           </div>
           <p className="text-sm text-green-100/50 font-light">
-            {discordData?.members?.length > 0 ? (
-              <>Join <span className="text-white font-bold">{discordData.members[0].username}</span> and <span className="text-white font-bold">{discordData.members.length}+ others</span> in the server right now</>
+            {memberTextInfo.username ? (
+              <>Join <span className="text-white font-bold">{memberTextInfo.username}</span> and <span className="text-white font-bold">{memberTextInfo.count}+ others</span> in the server right now</>
             ) : (
               <>Join Salman, Anjali, and <span className="text-white font-bold">50+ others</span> vibing in the server right now</>
             )}
