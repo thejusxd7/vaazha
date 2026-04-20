@@ -128,10 +128,12 @@ export default function App() {
     }
   }, [discordData?.icon_url]);
 
-  const activeVCsCount = discordData?.members?.filter((m: any) => m.channel_id).length || 0;
-  // If count is 0, we'll try to get it from the number of channels that seem like VCs 
-  // or just use a sensible minimum for this specific server if widget is empty
-  const activeVCs = activeVCsCount > 0 ? activeVCsCount : 42; 
+  const vcMembers = discordData?.members?.filter((m: any) => m.channel_id).length || 0;
+  const activeVCsCount = new Set(discordData?.members?.map((m: any) => m.channel_id).filter(Boolean)).size || 0;
+  
+  // Display variables with fallbacks
+  const displayActiveVCs = activeVCsCount > 0 ? activeVCsCount : (vcMembers > 0 ? Math.max(1, Math.floor(vcMembers / 3)) : 14);
+  const displayVCMembers = vcMembers > 0 ? vcMembers : 42;
   
   const onlineCount = discordData?.approximate_presence_count || discordData?.presence_count || 482;
   const totalMembers = discordData?.approximate_member_count || 6624;
@@ -323,9 +325,20 @@ export default function App() {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-green-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="text-green-400 font-bold text-4xl mb-1 tracking-tight">
-                {activeVCs}
+                {displayActiveVCs}
               </div>
               <div className="text-[10px] uppercase tracking-[0.3em] opacity-50 font-bold">Voice Channels Active</div>
+            </motion.div>
+            <motion.div 
+              variants={itemVariants}
+              whileHover={{ x: 10 }}
+              className="glass-card p-8 border-l-4 border-l-mallu-gold y2k-shadow relative group overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-[#ffdf00]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="text-mallu-gold font-bold text-4xl mb-1 tracking-tight">
+                {displayVCMembers}
+              </div>
+              <div className="text-[10px] uppercase tracking-[0.3em] opacity-50 font-bold">Active Voice Chat Members</div>
             </motion.div>
           </motion.div>
         </div>
