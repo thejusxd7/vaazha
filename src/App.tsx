@@ -34,7 +34,8 @@ const FeatureCard = memo(({ icon: Icon, title, description, delay }: { icon: any
       ease: [0.21, 0.47, 0.32, 0.98] 
     }}
     whileHover={{ y: -8, transition: { duration: 0.3 } }}
-    className="p-8 glass-card y2k-shadow transition-shadow hover:shadow-[10px_10px_0px_0px_#000] border-white/10 group cursor-default transform-gpu"
+    className="p-8 glass-card y2k-shadow transition-all border-lime-400/10 group cursor-default transform-gpu animate-float"
+    style={{ animationDelay: `${delay * 2}s` }}
   >
     <motion.div 
       whileHover={{ rotate: 10, scale: 1.1 }}
@@ -59,7 +60,7 @@ const SocialLink = memo(({ href, icon: Icon, color, children, isButton, onClick 
       target={!isButton ? "_blank" : undefined}
       rel={!isButton ? "noopener noreferrer" : undefined}
       whileHover={{ scale: 1.1, y: -5 }}
-      className="w-13 h-13 rounded-full glass-card flex items-center justify-center border border-white/10 shadow-lg relative group overflow-hidden transform-gpu"
+      className="w-13 h-13 rounded-full glass-card flex items-center justify-center border border-lime-400/20 relative group overflow-hidden transform-gpu"
     >
       <div className={`absolute inset-0 bg-gradient-to-tr ${color} opacity-0 group-hover:opacity-100 transition-opacity`} />
       {Icon ? <Icon size={22} className={`text-white group-hover:text-amber-400 transition-colors`} /> : children}
@@ -171,26 +172,27 @@ export default function App() {
   const inviteLink = "https://discord.gg/vaazha";
 
   return (
-    <div className="min-h-screen relative overflow-hidden font-sans bg-[#0d2c1d] text-white">
+    <div className="min-h-screen relative overflow-hidden font-sans bg-[#0d2c1d] text-white selection:bg-lime-400/30">
       {/* Interactive Background */}
       <div className="fixed inset-0 z-0 pointer-events-none contain-strict transform-gpu">
         <img 
-          src="https://cdn.discordapp.com/attachments/1494500725139705968/1495565131759882250/1000291081.gif?ex=69e6b511&is=69e56391&hm=34f550681ba6d5661fca6d789b44995801d7cfb107b57c489c1a4bc98799f4be&" 
+          src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExdzI2NHc1anRtc3QxMXl4b2p0bnFuaWJtYXV2ZmZ0OW9nY2RhMzludCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/OJQXyoA2dTQiDlrXsv/giphy.gif" 
           alt="" 
-          className="w-full h-full object-cover opacity-60 transform-gpu"
+          className="w-full h-full object-cover opacity-80 transform-gpu"
           referrerPolicy="no-referrer"
           loading="eager"
+          decoding="async"
         />
         <div className="absolute inset-0 bg-[#0d2c1d]/90 transform-gpu" />
       </div>
 
       {/* Dynamic Background Elements */}
-      <div className="fixed inset-0 y2k-grid pointer-events-none opacity-30 z-1" />
+      <div className="fixed inset-0 y2k-grid pointer-events-none opacity-20 z-1" />
       
-      <div className="absolute top-[-100px] right-[-50px] w-80 h-[500px] opacity-10 rotate-12 pointer-events-none">
+      <div className="absolute top-[-100px] right-[-50px] w-80 h-[500px] opacity-10 rotate-12 pointer-events-none contain-layout animate-float">
         <div className="banana-leaf w-full h-full"></div>
       </div>
-      <div className="absolute bottom-[-150px] left-[-50px] w-96 h-[600px] opacity-10 -rotate-12 pointer-events-none">
+      <div className="absolute bottom-[-150px] left-[-50px] w-96 h-[600px] opacity-10 -rotate-12 pointer-events-none contain-layout animate-float" style={{ animationDelay: "2s" }}>
         <div className="banana-leaf w-full h-full"></div>
       </div>
 
@@ -198,11 +200,11 @@ export default function App() {
       <nav className="relative z-50 px-8 py-8 flex justify-between items-center max-w-7xl mx-auto">
         <div className="flex items-center gap-3">
           <motion.div 
-            whileHover={{ scale: 1.1, rotate: -5 }}
-            className="w-12 h-12 bg-mallu-amber flex items-center justify-center border-2 border-black y2k-shadow transition-transform rounded-2xl overflow-hidden"
+            whileHover={{ scale: 1.05, rotate: -2 }}
+            className="w-12 h-12 bg-mallu-amber flex items-center justify-center border-2 border-black y2k-shadow transition-transform rounded-2xl overflow-hidden transform-gpu"
           >
             {discordData?.icon_url ? (
-              <img src={discordData.icon_url} alt="Server Icon" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              <img src={discordData.icon_url} alt="Server Icon" className="w-full h-full object-cover" referrerPolicy="no-referrer" decoding="async" />
             ) : (
               <div className="bg-deep-forest w-full h-full flex items-center justify-center font-black text-2xl text-mallu-amber italic">
                 {discordData?.name?.[0] || 'V'}
@@ -227,7 +229,7 @@ export default function App() {
           rel="noopener noreferrer"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="bg-discord text-white px-6 py-2.5 border-2 border-black y2k-shadow text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-discord/90 transition-all"
+          className="bg-discord text-white px-6 py-2.5 border-2 border-black rounded-xl y2k-shadow text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-discord/90 transition-all"
         >
           Join Discord 
           <img 
@@ -295,9 +297,9 @@ export default function App() {
                 href={inviteLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                whileHover={{ scale: 1.05, boxShadow: "10px 10px 0px 0px #000" }}
+                whileHover={{ scale: 1.05, boxShadow: "4px 4px 0px 0px rgba(0,0,0,0.3)" }}
                 whileTap={{ scale: 0.98 }}
-                className="bg-discord text-white px-10 py-5 text-xl font-bold border-2 border-black y2k-shadow flex items-center gap-3 active:shadow-none transition-shadow"
+                className="bg-discord text-white px-10 py-5 text-xl font-bold border-2 border-black rounded-2xl y2k-shadow flex items-center gap-3 active:shadow-none transition-all"
               >
                 JOIN THE SERVER 
                 <img 
@@ -320,7 +322,7 @@ export default function App() {
             <motion.div 
               variants={itemVariants}
               whileHover={{ x: 10 }}
-              className="glass-card p-8 border-l-4 border-l-cyan-400 y2k-shadow relative group overflow-hidden"
+              className="glass-card p-8 border-l-4 border-l-cyan-400 y2k-shadow relative group overflow-hidden animate-float"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="text-cyan-400 font-bold text-4xl mb-1 tracking-tight">
@@ -333,7 +335,8 @@ export default function App() {
             <motion.div 
               variants={itemVariants}
               whileHover={{ x: 10 }}
-              className="glass-card p-8 border-l-4 border-l-mallu-amber y2k-shadow relative group overflow-hidden"
+              className="glass-card p-8 border-l-4 border-l-mallu-amber y2k-shadow relative group overflow-hidden animate-float"
+              style={{ animationDelay: "1s" }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-mallu-amber/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               {discordData && (
@@ -352,7 +355,8 @@ export default function App() {
             <motion.div 
               variants={itemVariants}
               whileHover={{ x: 10 }}
-              className="glass-card p-8 border-l-4 border-l-green-400 y2k-shadow relative group overflow-hidden"
+              className="glass-card p-8 border-l-4 border-l-green-400 y2k-shadow relative group overflow-hidden animate-float"
+              style={{ animationDelay: "2s" }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-green-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="text-green-400 font-bold text-4xl mb-1 tracking-tight">
@@ -363,7 +367,8 @@ export default function App() {
             <motion.div 
               variants={itemVariants}
               whileHover={{ x: 10 }}
-              className="glass-card p-8 border-l-4 border-l-mallu-gold y2k-shadow relative group overflow-hidden"
+              className="glass-card p-8 border-l-4 border-l-mallu-gold y2k-shadow relative group overflow-hidden animate-float"
+              style={{ animationDelay: "3s" }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-[#ffdf00]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="text-mallu-gold font-bold text-4xl mb-1 tracking-tight">
@@ -492,6 +497,7 @@ export default function App() {
               alt="Discord" 
               className="w-6 h-6 brightness-0 invert"
               referrerPolicy="no-referrer"
+              decoding="async"
             />
           </SocialLink>
 
@@ -517,13 +523,13 @@ export default function App() {
 
 
       {/* Footer */}
-      <footer className="px-8 py-12 border-t border-white/5 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12 bg-[#0a2318]/50 mb-8 glass-card">
+      <footer className="px-8 py-12 border-t border-lime-400/20 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12 bg-[#0a2318]/50 mb-8 glass-card rounded-3xl">
         <div className="flex items-center gap-6">
           <div className="flex -space-x-3">
              {memberAvatars.length > 0 ? memberAvatars.map((m: any, i: number) => (
               <div key={m.id || i} className="w-10 h-10 rounded-full border-2 border-black overflow-hidden bg-deep-forest transform-gpu">
                 {m.avatar_url ? (
-                   <img src={m.avatar_url} alt="Member" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                   <img src={m.avatar_url} alt="Member" className="w-full h-full object-cover" referrerPolicy="no-referrer" decoding="async" />
                 ) : (
                   <div className={`w-full h-full bg-gradient-to-tr ${i === 1 ? 'from-blue-500' : i === 2 ? 'from-green-500' : 'from-yellow-500'} to-white/20`} />
                 )}

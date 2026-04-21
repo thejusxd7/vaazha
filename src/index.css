@@ -11,12 +11,17 @@
   --color-vibrant-leaf: #166534;
   --color-mallu-amber: #fbbf24;
   --color-mallu-gold: #ffdf00;
+  --color-lime-400: #a3e635;
   --color-discord: #5865f2;
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-15px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }
 
 @layer base {
@@ -26,17 +31,26 @@
 }
 
 .y2k-shadow {
-  box-shadow: 6px 6px 0px 0px #000;
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 0.4);
+  border-radius: 1.5rem;
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  will-change: transform, opacity;
+  background: rgba(163, 230, 53, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(163, 230, 53, 0.08);
+  border-radius: 1.5rem;
   backface-visibility: hidden;
   transform: translateZ(0);
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.glass-card:hover, .glass-card:active {
+  background: rgba(163, 230, 53, 0.1);
+  border-color: rgba(163, 230, 53, 0.25);
+  box-shadow: 0 10px 40px -10px rgba(163, 230, 53, 0.2);
+  will-change: transform, box-shadow;
 }
 
 .performance-layer {
@@ -56,8 +70,9 @@
 
 .y2k-grid {
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 80px 80px;
+  contain: strict;
 }
 
